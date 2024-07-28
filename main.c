@@ -37,7 +37,7 @@ VECTOR right = {1, 0};
 VECTOR left = {-1, 0};
 SCENE scene = START;
 VECTOR cursor;
-int stage = 9;
+int stage = 0;
 int isCusorTiming = 0;
 int isBulletTiming = 0;
 int isEnemyTiming = 0;
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
     glutInitWindowSize(MAP_WIDTH * 32, MAP_HEIGHT * 32);
     srandom(time(NULL));
     glutInit(&argc, argv);
-    glutCreateWindow("PNGファイル読み込みのテスト");
+    glutCreateWindow("TankBattle");
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
     glClearColor(0.0, 0.0, 0.0, 0.0);
 
