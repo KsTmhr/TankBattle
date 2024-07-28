@@ -316,6 +316,8 @@ void Attack(TYPE tp, VECTOR pos, VECTOR dir, int id)
             case KANTSUBULLET:
                 bullets[i].data = kantsu_bullet;
                 break;
+            default:
+                break;
             }
             break;
         }

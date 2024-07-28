@@ -24,7 +24,7 @@ char map_data[STAGE_NUM][MAP_HEIGHT][MAP_WIDTH];
 char map[MAP_HEIGHT][MAP_WIDTH];
 
 // 各スプライトの基本データ
-SPRITE_DATA default_data = {{}, {}, DEFAULT, 0, 0, 0};
+SPRITE_DATA default_data = {{}, {}, DEFAULT, 0, 0};
 SPRITE_DATA player = {{}, {}, PLAYER, PLAYER_SPEED, 0};
 SPRITE_DATA enemy1 = {{}, {}, ENEMY1, ENEMY_SPEED, 0};
 SPRITE_DATA enemy2 = {{}, {}, ENEMY2, ENEMY_SPEED, 0};
