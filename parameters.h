@@ -1,0 +1,35 @@
+#ifndef PARAMETERS_H
+#define PARAMETERS_H
+
+// #define M_PI 3.14159265358979323846264338327950288 /* pi             */
+
+#define MAP_IMG_NUM 2
+#define STAGE_NUM 10
+#define PLAYER_IMG_NUM 4
+#define ENEMY_IMG_NUM 4
+#define BULLET_IMG_NUM 6
+#define EXPLOSION_IMG_NUM 4
+
+#define CHARACTERS_NUM 10
+#define BULLETS_NUM 30
+#define ENEMY_NUM 4
+#define SHUKI 10
+#define ENEMY_SHUKI 100
+#define MAP_WIDTH 30
+#define MAP_HEIGHT 20
+#define BLOCK '1'
+#define GROUND '2'
+#define PLAYER_SPEED 8
+#define ENEMY_SPEED 8
+
+#define NORMALBULLET_SPEED 5
+#define FASTBULLET_SPEED 10
+#define KANTSUBULLET_SPEED 8
+#define NORMALBULLET_BOUND 3
+
+#define UPBLOCK 0x01
+#define DOWNBLOCK 0x02
+#define LEFTBLOCK 0x04
+#define RIGHTBLOCK 0x08
+
+#endif
