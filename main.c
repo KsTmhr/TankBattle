@@ -1,5 +1,6 @@
 #include "header.h"
 
+// 画像読み込み用変数
 GLuint back_img;
 pngInfo back_img_info;
 GLuint start_img[2];
@@ -16,34 +17,49 @@ GLuint img[MAP_IMG_NUM];
 pngInfo info[MAP_IMG_NUM];
 GLuint explosion_img[EXPLOSION_IMG_NUM];
 pngInfo explosion_img_info[EXPLOSION_IMG_NUM];
+
+// 全ステージのマップ情報を保持する変数
 char map_data[STAGE_NUM][MAP_HEIGHT][MAP_WIDTH];
+// 現在のステージのマップ情報を保持する変数
 char map[MAP_HEIGHT][MAP_WIDTH];
+
+// 各スプライトの基本データ
 SPRITE_DATA default_data = {{}, {}, DEFAULT, 0, 0, 0};
-SPRITE_DATA player = {{}, {}, PLAYER, PLAYER_IMG_NUM, PLAYER_SPEED, 0};
-SPRITE_DATA enemy1 = {{}, {}, ENEMY1, ENEMY_IMG_NUM, ENEMY_SPEED, 0};
-SPRITE_DATA enemy2 = {{}, {}, ENEMY2, ENEMY_IMG_NUM, ENEMY_SPEED, 0};
-SPRITE_DATA enemy3 = {{}, {}, ENEMY3, ENEMY_IMG_NUM, ENEMY_SPEED, 0};
-SPRITE_DATA enemy4 = {{}, {}, ENEMY4, ENEMY_IMG_NUM, ENEMY_SPEED, 0};
-SPRITE_DATA enemy5 = {{}, {}, ENEMY5, ENEMY_IMG_NUM, ENEMY_SPEED, 0};
-SPRITE_DATA enemy6 = {{}, {}, ENEMY6, ENEMY_IMG_NUM, ENEMY_SPEED, 0};
-SPRITE_DATA normal_bullet = {{}, {}, NORMALBULLET, BULLET_IMG_NUM, NORMALBULLET_SPEED, NORMALBULLET_BOUND};
-SPRITE_DATA fast_bullet = {{}, {}, FASTBULLET, BULLET_IMG_NUM, FASTBULLET_SPEED, 0};
-SPRITE_DATA kantsu_bullet = {{}, {}, KANTSUBULLET, BULLET_IMG_NUM, KANTSUBULLET_SPEED, 0};
+SPRITE_DATA player = {{}, {}, PLAYER, PLAYER_SPEED, 0};
+SPRITE_DATA enemy1 = {{}, {}, ENEMY1, ENEMY_SPEED, 0};
+SPRITE_DATA enemy2 = {{}, {}, ENEMY2, ENEMY_SPEED, 0};
+SPRITE_DATA enemy3 = {{}, {}, ENEMY3, ENEMY_SPEED, 0};
+SPRITE_DATA enemy4 = {{}, {}, ENEMY4, ENEMY_SPEED, 0};
+SPRITE_DATA enemy5 = {{}, {}, ENEMY5, ENEMY_SPEED, 0};
+SPRITE_DATA enemy6 = {{}, {}, ENEMY6, ENEMY_SPEED, 0};
+SPRITE_DATA normal_bullet = {{}, {}, NORMALBULLET, NORMALBULLET_SPEED, NORMALBULLET_BOUND};
+SPRITE_DATA fast_bullet = {{}, {}, FASTBULLET, FASTBULLET_SPEED, 0};
+SPRITE_DATA kantsu_bullet = {{}, {}, KANTSUBULLET, KANTSUBULLET_SPEED, 0};
+
+// スプライトのインスタンスを保持する変数
 SPRITE characters[CHARACTERS_NUM];
 SPRITE bullets[BULLETS_NUM];
+
+// 便利
 VECTOR up = {0, -1};
 VECTOR down = {0, 1};
 VECTOR right = {1, 0};
 VECTOR left = {-1, 0};
+
+// 現在のシーンとステージ
 SCENE scene = START;
-VECTOR cursor;
 int stage = 0;
-int isCusorTiming = 0;
-int isBulletTiming = 0;
+
+// カーソル位置
+VECTOR cursor;
+// 敵周期で呼ばれたかどうか
 int isEnemyTiming = 0;
-int isMoveTiming = 0;
+
+// 画面の外側の大きさ
 int margin_x = 0;
 int margin_y = 0;
+
+// ボタンがホバーされているかどうか
 int button1_status = 0;
 int button2_status = 0;
 
@@ -69,6 +85,19 @@ int main(int argc, char **argv)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
+    //  コールバック関数の登録
+    glutDisplayFunc(Display);
+    glutReshapeFunc(Reshape);
+    glutKeyboardFunc(Keyboard);
+    glutTimerFunc(SHUKI, Timer, 0);
+    glutTimerFunc(ENEMY_SHUKI, EnemyTimer, 0);
+    glutMouseFunc(Mouse);
+    glutPassiveMotionFunc(PassiveMotion);
+
+    // 開始時のウィンドウ位置
+    glutPositionWindow(glutGet(GLUT_SCREEN_WIDTH) / 2 - (MAP_WIDTH * 16), glutGet(GLUT_SCREEN_HEIGHT) / 2 - (MAP_HEIGHT * 16));
+
+    // マップデータの読み込み
     for (i = 0; i < STAGE_NUM; i++)
     {
         sprintf(str, "./maps/map%d.txt", i);
@@ -192,17 +221,6 @@ int main(int argc, char **argv)
         explosion_img[i] = pngBind(str, PNG_NOMIPMAP, PNG_ALPHA, &explosion_img_info[i],
                                    GL_CLAMP, GL_NEAREST, GL_NEAREST);
     }
-
-    //  コールバック関数の登録
-    glutDisplayFunc(Display);
-    glutReshapeFunc(Reshape);
-    glutKeyboardFunc(Keyboard);
-    glutTimerFunc(SHUKI, Timer, 0);
-    glutTimerFunc(ENEMY_SHUKI, EnemyTimer, 0);
-    glutMouseFunc(Mouse);
-    glutPassiveMotionFunc(PassiveMotion);
-
-    glutPositionWindow(glutGet(GLUT_SCREEN_WIDTH) / 2 - (MAP_WIDTH * 16), glutGet(GLUT_SCREEN_HEIGHT) / 2 - (MAP_HEIGHT * 16));
 
     //  イベントループ突入
     glutMainLoop();

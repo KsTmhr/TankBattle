@@ -5,11 +5,13 @@
 //
 void Timer(int t)
 {
-    isBulletTiming = 1;
     glutPostRedisplay();
     glutTimerFunc(SHUKI, Timer, 0);
 }
 
+//
+//  敵の動きを計算するフラグを立てる
+//
 void EnemyTimer(int t)
 {
     isEnemyTiming = 1;
@@ -29,6 +31,9 @@ void Reshape(int w, int h)
     glTranslated(0, -h, 0);
 }
 
+//
+//  vをa倍にして返す
+//
 VECTOR MaltipleVector(VECTOR v, double a)
 {
     VECTOR r;
@@ -37,6 +42,9 @@ VECTOR MaltipleVector(VECTOR v, double a)
     return r;
 }
 
+//
+// VECTORを作る
+//
 VECTOR vc(double x, double y)
 {
     VECTOR r;
@@ -45,6 +53,9 @@ VECTOR vc(double x, double y)
     return r;
 }
 
+//
+// ステージ初期化
+//
 void InitStage()
 {
     int i, j, k;
@@ -59,14 +70,15 @@ void InitStage()
         InitSprite(&bullets[i]);
     }
 
+    // マップロード
     for (i = 0; i < MAP_HEIGHT; i++)
     {
         for (j = 0; j < MAP_WIDTH; j++)
         {
             switch (map_data[stage][i][j])
             {
+            // プレイヤー設定
             case 'P':
-                // プレイヤー設定
                 characters[0].is_active = 1;
                 characters[0].data = player;
                 characters[0].pos = vc(j * 32, i * 32);
@@ -74,6 +86,7 @@ void InitStage()
                 map[i][j] = GROUND;
                 break;
 
+            // 敵設定
             case 'A':
                 for (k = 1; k < CHARACTERS_NUM; k++)
                 {
@@ -90,7 +103,6 @@ void InitStage()
                     }
                 }
                 break;
-
             case 'B':
                 for (k = 1; k < CHARACTERS_NUM; k++)
                 {
@@ -107,7 +119,6 @@ void InitStage()
                     }
                 }
                 break;
-
             case 'C':
                 for (k = 1; k < CHARACTERS_NUM; k++)
                 {
@@ -124,7 +135,6 @@ void InitStage()
                     }
                 }
                 break;
-
             case 'D':
                 for (k = 1; k < CHARACTERS_NUM; k++)
                 {
@@ -143,7 +153,6 @@ void InitStage()
                     }
                 }
                 break;
-
             case 'E':
                 for (k = 1; k < CHARACTERS_NUM; k++)
                 {
@@ -162,7 +171,6 @@ void InitStage()
                     }
                 }
                 break;
-
             case 'F':
                 for (k = 1; k < CHARACTERS_NUM; k++)
                 {
@@ -188,6 +196,8 @@ void InitStage()
             }
         }
     }
+
+    // プレイヤー位置が指定されていなかったらランダムに配置
     if (characters[0].data.type == DEFAULT)
     {
         while (map[i = random() % MAP_HEIGHT][j = random() % MAP_WIDTH] == BLOCK)
@@ -198,12 +208,12 @@ void InitStage()
         characters[0].dir = right;
     }
 
-    isCusorTiming = 0;
-    isBulletTiming = 0;
     isEnemyTiming = 0;
-    isMoveTiming = 0;
 }
 
+//
+// 爆発のアニメーション
+//
 void Explosion(SPRITE *sp)
 {
     if (sp->param[0] >= EXPLOSION_IMG_NUM)
@@ -215,6 +225,9 @@ void Explosion(SPRITE *sp)
               sp->pos, sp->dir, &explosion_img_info[sp->param[0]]);
 }
 
+//
+// 上下左右のうちどれかをランダムに返す
+//
 VECTOR RandomDir()
 {
     VECTOR dir;

@@ -27,6 +27,9 @@ typedef enum
     KANTSUBULLET,
 } TYPE;
 
+//
+// シーンの種類
+//
 typedef enum
 {
     START,
@@ -55,7 +58,6 @@ typedef struct spd
     GLuint img[10];
     pngInfo img_info[10];
     TYPE type;
-    int img_num;
     int speed;
     int cnt_max;
 } SPRITE_DATA;
@@ -97,13 +99,11 @@ void CalcEnemy3Move(SPRITE *sp, int id);
 void CalcEnemy4Move(SPRITE *sp, int id);
 void CalcEnemy5Move(SPRITE *sp, int id);
 void CalcEnemy6Move(SPRITE *sp, int id);
-int TrailBlock(char block, int *x, int *y, int dir_x, int dir_y);
 int CourseSimurate(VECTOR pos, VECTOR dir, int bound);
 int SearchCourseByDir(SPRITE *sp, int div1, int div2, int a, int b, int bound);
 void Explosion(SPRITE *sp);
 VECTOR RandomDir();
 
-//  PNG画像を読み込むための変数
 extern GLuint back_img;
 extern pngInfo back_img_info;
 extern GLuint start_img[2];
@@ -142,10 +142,7 @@ extern VECTOR left;
 extern SCENE scene;
 extern VECTOR cursor;
 extern int stage;
-extern int isCusorTiming;
-extern int isBulletTiming;
 extern int isEnemyTiming;
-extern int isMoveTiming;
 extern int margin_x;
 extern int margin_y;
 extern int button1_status;

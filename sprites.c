@@ -1,5 +1,8 @@
 #include "header.h"
 
+//
+// 弾丸の動き計算
+//
 void CalcBulletMove(SPRITE *sp, int id, int isSimuration)
 {
     int j;
@@ -42,12 +45,15 @@ void CalcBulletMove(SPRITE *sp, int id, int isSimuration)
     }
     sp->param[2]++;
 
+    // シュミレーション時は当たり判定等無効
     if (!isSimuration)
     {
+        // 上限まで跳ねたら爆発
         if (sp->param[1] > sp->data.cnt_max)
         {
             sp->is_exploding = 1;
         }
+
         // 当たり判定
         for (j = id + 1; j < BULLETS_NUM; j++)
         {
@@ -62,10 +68,12 @@ void CalcBulletMove(SPRITE *sp, int id, int isSimuration)
             }
         }
 
+        // マップの外に出たら初期化
         if (sp->pos.x < 0 || 960 < sp->pos.x || sp->pos.y < 0 || 640 < sp->pos.y)
             InitSprite(sp);
     }
 
+    // 攻撃者自身とある程度離れたら，攻撃者自身との当たり判定有効
     if (!sp->param[4])
     {
         if (fabs(characters[sp->param[3]].pos.x - sp->pos.x) >= 40 ||
@@ -76,6 +84,9 @@ void CalcBulletMove(SPRITE *sp, int id, int isSimuration)
     }
 }
 
+//
+// キャラクターの動き
+//
 void CalcCharaMove(SPRITE *sp, int id)
 {
     int j;
@@ -131,9 +142,13 @@ void CalcCharaMove(SPRITE *sp, int id)
     }
 }
 
+//
+// 照準の動き
+//
 void CalcAimMove()
 {
     glLineWidth(5.0);
+    // 十字を描く
     glBegin(GL_LINES);
     glVertex2i(cursor.x, cursor.y + 16);
     glVertex2i(cursor.x, cursor.y + 5);
@@ -145,6 +160,7 @@ void CalcAimMove()
     glVertex2i(cursor.x - 5, cursor.y);
     glEnd();
 
+    // 点線を描く
     glEnable(GL_LINE_STIPPLE);
     glLineStipple(5, 0xf0f0);
     glBegin(GL_LINES);
@@ -203,6 +219,7 @@ void PutSprite(GLuint num, VECTOR pos, VECTOR dir, pngInfo *info)
 char Move(VECTOR *pos, VECTOR dir, int kantsu)
 {
     char r = 0x00;
+    // ブロックを無視するならそのまま移動
     if (kantsu)
     {
         pos->x += dir.x;
@@ -210,6 +227,7 @@ char Move(VECTOR *pos, VECTOR dir, int kantsu)
     }
     else
     {
+        // 右移動
         if (dir.x >= 0)
         {
             if (map[(int)pos->y / 32][(int)pos->x / 32 + 1] != BLOCK &&
@@ -222,6 +240,7 @@ char Move(VECTOR *pos, VECTOR dir, int kantsu)
                 r |= RIGHTBLOCK;
             }
         }
+        // 左移動
         else if (dir.x < 0)
         {
             if (map[(int)pos->y / 32][((int)pos->x - 1) / 32] != BLOCK &&
@@ -234,7 +253,7 @@ char Move(VECTOR *pos, VECTOR dir, int kantsu)
                 r |= LEFTBLOCK;
             }
         }
-
+        // 下移動
         if (dir.y < 0)
         {
             if (map[((int)pos->y - 1) / 32][(int)pos->x / 32] != BLOCK &&
@@ -247,6 +266,7 @@ char Move(VECTOR *pos, VECTOR dir, int kantsu)
                 r |= UPBLOCK;
             }
         }
+        // 上移動
         else if (dir.y >= 0)
         {
             if (map[(int)pos->y / 32 + 1][(int)pos->x / 32] != BLOCK &&
@@ -269,73 +289,36 @@ char Move(VECTOR *pos, VECTOR dir, int kantsu)
 void Attack(TYPE tp, VECTOR pos, VECTOR dir, int id)
 {
     int i;
-    switch (tp)
+    for (i = 0; i < BULLETS_NUM; i++)
     {
-    case NORMALBULLET:
-        for (i = 0; i < BULLETS_NUM; i++)
+        if (bullets[i].data.type == DEFAULT)
         {
-            if (bullets[i].data.type == DEFAULT)
+            bullets[i].is_active = 1;
+            bullets[i].pos.x = pos.x;
+            bullets[i].pos.y = pos.y;
+            bullets[i].param[0] = 0;  // コスチューム切り替え
+            bullets[i].param[1] = 0;  // 跳ね返り回数
+            bullets[i].param[2] = 0;  // 跳ね返り間隔
+            bullets[i].param[3] = id; // 攻撃した人
+            bullets[i].param[4] = 0;  // 攻撃した本人との当たり判定を行うかどうか
+            bullets[i].status = right;
+            bullets[i].dir = dir;
+            switch (tp)
             {
-                bullets[i].is_active = 1;
+            case NORMALBULLET:
                 bullets[i].data = normal_bullet;
-                bullets[i].pos.x = pos.x;
-                bullets[i].pos.y = pos.y;
-                bullets[i].param[0] = 0;  // コスチューム切り替え
-                bullets[i].param[1] = 0;  // 跳ね返り回数
-                bullets[i].param[2] = 0;  // 跳ね返り間隔
-                bullets[i].param[3] = id; // 攻撃した人
-                bullets[i].param[4] = 0;  // 攻撃した本人との当たり判定を行うかどうか
-                bullets[i].status = right;
-                bullets[i].dir = dir;
                 break;
-            }
-        }
-        break;
 
-    case FASTBULLET:
-        for (i = 0; i < BULLETS_NUM; i++)
-        {
-            if (bullets[i].data.type == DEFAULT)
-            {
-                bullets[i].is_active = 1;
+            case FASTBULLET:
                 bullets[i].data = fast_bullet;
-                bullets[i].pos.x = pos.x;
-                bullets[i].pos.y = pos.y;
-                bullets[i].param[0] = 0;  // コスチューム切り替え
-                bullets[i].param[1] = 0;  // 跳ね返り回数
-                bullets[i].param[2] = 0;  // 跳ね返り間隔
-                bullets[i].param[3] = id; // 攻撃した人
-                bullets[i].param[4] = 0;  // 攻撃した本人との当たり判定を行うかどうか
-                bullets[i].status = right;
-                bullets[i].dir = dir;
                 break;
-            }
-        }
-        break;
 
-    case KANTSUBULLET:
-        for (i = 0; i < BULLETS_NUM; i++)
-        {
-            if (bullets[i].data.type == DEFAULT)
-            {
-                bullets[i].is_active = 1;
+            case KANTSUBULLET:
                 bullets[i].data = kantsu_bullet;
-                bullets[i].pos.x = pos.x;
-                bullets[i].pos.y = pos.y;
-                bullets[i].param[0] = 0;  // コスチューム切り替え
-                bullets[i].param[1] = 0;  // 跳ね返り回数
-                bullets[i].param[2] = 0;  // 跳ね返り間隔
-                bullets[i].param[3] = id; // 攻撃した人
-                bullets[i].param[4] = 0;  // 攻撃した本人との当たり判定を行うかどうか
-                bullets[i].status = right;
-                bullets[i].dir = dir;
                 break;
             }
+            break;
         }
-        break;
-
-    default:
-        break;
     }
 }
 

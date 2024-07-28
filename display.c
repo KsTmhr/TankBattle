@@ -10,12 +10,15 @@ void Display(void)
     int enemy_num;
     static int cnt = 0;
 
+    // ウィンドウサイズ取得
     w = glutGet(GLUT_WINDOW_WIDTH);
     h = glutGet(GLUT_WINDOW_HEIGHT);
 
+    // 画面の外側のサイズ計算
     margin_x = (w - (MAP_WIDTH * 32)) / 2;
     margin_y = (h - (MAP_HEIGHT * 32)) / 2;
 
+    // 規定より小さかったら戻す
     if (w < MAP_WIDTH * 32)
     {
         w = MAP_WIDTH * 32;
@@ -27,27 +30,31 @@ void Display(void)
         glutReshapeWindow(w, h);
     }
 
+    // 背景色塗りつぶし（黒）
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (scene != GAME)
+    // ゲーム中以外は対応する画像表示
+    if (scene != GAME && scene != COUNTDOWN)
     {
         PutSprite(back_img, vc(0, 0), right, &back_img_info);
         PutSprite(scene_img[scene], vc(0, 0), right, &scene_img_info[scene]);
     }
 
+    // シーンごと
     switch (scene)
     {
+    // カーソル再表示とボタンの配置
     case START:
         glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
         PutSprite(start_img[button1_status], vc(700, 400), right, &start_img_info[button1_status]);
         PutSprite(tutorial_img[button2_status], vc(675, 460), right, &tutorial_img_info[button2_status]);
         break;
-
     case TUTORIAL:
         glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
         PutSprite(home_img[button1_status], vc(64, 64), right, &home_img_info[button1_status]);
         break;
 
+    // 表示だけ，キャラは動かさない
     case COUNTDOWN:
         // マップ描画
         for (i = 0; i < MAP_HEIGHT; i++)
@@ -75,6 +82,7 @@ void Display(void)
         if (isEnemyTiming)
             cnt++;
 
+        // 3秒たったらゲームスタート
         if (cnt >= 30)
         {
             cnt = 0;
@@ -102,6 +110,7 @@ void Display(void)
             {
                 if (!characters[i].is_exploding)
                 {
+                    // キャラ移動 & 表示
                     CalcCharaMove(&characters[i], i);
 
                     PutSprite(characters[i].data.img[characters[i].param[0] + 1],
@@ -111,6 +120,7 @@ void Display(void)
                 }
                 else
                 {
+                    // 爆発
                     if (isEnemyTiming)
                     {
                         characters[i].param[0]++;
@@ -121,10 +131,12 @@ void Display(void)
             }
         }
 
+        // プレイヤーが死んでいたらゲームオーバー
         if (characters[0].data.type == DEFAULT)
         {
             scene = OVER;
         }
+        // 場にキャラが1体だけになったら（=敵がいなくなったら）ステージクリア
         else if (enemy_num == 1)
         {
             scene = STAGECLEAR;
@@ -142,12 +154,14 @@ void Display(void)
             {
                 if (!bullets[i].is_exploding)
                 {
+                    // 弾丸移動 & 表示
                     CalcBulletMove(&bullets[i], i, 0);
                     PutSprite(bullets[i].data.img[bullets[i].param[0]],
                               bullets[i].pos, bullets[i].dir, &bullets[i].data.img_info[bullets[i].param[0]]);
                 }
                 else
                 {
+                    // 爆発
                     if (isEnemyTiming)
                     {
                         bullets[i].param[0]++;
@@ -159,7 +173,6 @@ void Display(void)
 
         // カーソル描画
         CalcAimMove();
-
         break;
 
     case OVER:
@@ -173,6 +186,7 @@ void Display(void)
     case GAMECLEAR:
         glutSetCursor(GLUT_CURSOR_LEFT_ARROW);
 
+        // ランダムな位置に爆発アニメーション表示
         if (isEnemyTiming)
         {
             InitSprite(&characters[++cnt % CHARACTERS_NUM]);
@@ -199,6 +213,7 @@ void Display(void)
         break;
     }
 
+    // 周期判定リセット
     if (isEnemyTiming)
     {
         isEnemyTiming = 0;

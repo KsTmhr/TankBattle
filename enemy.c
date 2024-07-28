@@ -5,6 +5,7 @@ void CalcEnemy1Move(SPRITE *sp, int id)
     double dist, theta;
     switch (sp->param[1])
     {
+        // 直接狙えるか調べる
     case 0:
         theta = atan2(characters[0].pos.y - sp->pos.y, characters[0].pos.x - sp->pos.x);
         sp->dir = vc(cos(theta), sin(theta));
@@ -18,7 +19,7 @@ void CalcEnemy1Move(SPRITE *sp, int id)
             sp->param[1] = 1;
         }
         break;
-
+        // 16等分して，360度調査
     case 1:
         dist = SearchCourseByDir(sp, 1, 16, 0, sp->param[2], normal_bullet.cnt_max);
         if (sp->param[3] > dist)
@@ -33,6 +34,7 @@ void CalcEnemy1Move(SPRITE *sp, int id)
         }
         break;
 
+        // さらに16等分して調査
     case 2:
         dist = SearchCourseByDir(sp, 16, 16, sp->param[4], sp->param[2], normal_bullet.cnt_max);
         if (sp->param[3] > dist)
@@ -54,12 +56,15 @@ void CalcEnemy1Move(SPRITE *sp, int id)
             }
         }
         break;
+
+        // 攻撃方向を決定
     case 3:
         sp->dir.x = cos((sp->param[4] * 16 + sp->param[5]) * M_PI / 128);
         sp->dir.y = sin((sp->param[4] * 16 + sp->param[5]) * M_PI / 128);
         sp->param[1] = 4;
         break;
 
+        // 発射　各パラメータ初期化
     case 4:
         Attack(NORMALBULLET, sp->pos, sp->dir, id);
         sp->param[1] = 0;
@@ -280,29 +285,12 @@ void CalcEnemy6Move(SPRITE *sp, int id)
 {
     sp->param[1]++;
     sp->dir = vc(cos(sp->param[1] * M_PI / 8), sin(sp->param[1] * M_PI / 8));
-    // if (sp->param[1] % 3 == 0)
     Attack(KANTSUBULLET, sp->pos, sp->dir, id);
 }
 
-int TrailBlock(char block, int *x, int *y, int dir_x, int dir_y)
-{
-    int tmpx, tmpy;
-    tmpx = *x;
-    tmpy = *y;
-    while (map[*y][*x] == block)
-    {
-        *x += dir_x;
-        *y += dir_y;
-        if (*y < 0 || MAP_HEIGHT <= *y || *x < 0 || MAP_WIDTH <= *x)
-        {
-            *x = tmpx;
-            *y = tmpy;
-            return 0;
-        }
-    }
-    return 1;
-}
-
+//
+// 仮想弾を飛ばす
+//
 int CourseSimurate(VECTOR pos, VECTOR dir, int bound)
 {
     int i, dist;
@@ -355,7 +343,7 @@ int CourseSimurate(VECTOR pos, VECTOR dir, int bound)
 //
 int SearchCourseByDir(SPRITE *sp, int div1, int div2, int a, int b, int bound)
 {
-    sp->dir.x = cos((a * div1 + b) * M_PI * 2 / (div1 * div2));
-    sp->dir.y = sin((a * div1 + b) * M_PI * 2 / (div1 * div2));
+    sp->dir.x = cos((a * div2 + b) * M_PI * 2 / (div1 * div2));
+    sp->dir.y = sin((a * div2 + b) * M_PI * 2 / (div1 * div2));
     return CourseSimurate(sp->pos, sp->dir, bound);
 }
